@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">FbAdsPractice</string>
+    <string name="interstitial_id">YOUR_PLACEMENT_ID</string>
+    <string name="banner_id">    IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID</string>
+
 </resources>
