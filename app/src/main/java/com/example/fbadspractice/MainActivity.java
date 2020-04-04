@@ -1,6 +1,7 @@
 package com.example.fbadspractice;
 
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,11 +35,12 @@ import androidx.recyclerview.widget.RecyclerView;
 public class MainActivity extends AppCompatActivity {
     // declare ads instances
     private AdView bannerAd;
+    private InterstitialAd interstitialAd;
     private final String TAG = MainActivity.class.getSimpleName();
     private NativeAd nativeAd;
     private NativeAdLayout nativeAdLayout;
     private LinearLayout adView;
-    private InterstitialAd interstitialAd;
+
     RecyclerView recyclerView;
     ArrayList<String> str=new ArrayList<>();
     @Override
@@ -49,12 +51,71 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the Audience Network SDK for ads
         AudienceNetworkAds.initialize(this);
         loadAds();
-        loadNativeAd();
+       // loadNativeAd();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        str.add("asdasd");
-        str.add("as");
-        recyclerView.setAdapter(new Adapter(str, MainActivity.this));
+        str.add("1");
+        str.add("2");
+        str.add("3");
+        str.add("4");
+        str.add("5");
+        str.add("6");
+        str.add("7");
+        str.add("8");
+        str.add("9");
+        str.add("10");
+        str.add("11");
+        nativeAdLayout = findViewById(R.id.native_ad_container);
+        AdSettings.addTestDevice("45fc3d5b-6fd5-4d8b-9b83-05816a55205a");
+        nativeAd = new NativeAd(this, "YOUR_PLACEMENT_ID");
+        nativeAd.loadAd();
 
+        recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout));
+        nativeAd.setAdListener(new NativeAdListener() {
+            @Override
+            public void onMediaDownloaded(Ad ad) {
+                // Native ad finished downloading all assets
+                Log.e(TAG, "Native ad finished downloading all assets.");
+                // Toast.makeText(getApplicationContext(), ""+ad, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onError(Ad ad, AdError adError) {
+                // Native ad failed to load
+                Log.e(TAG, "Native ad failed to load: " + adError.getErrorMessage());
+                //Toast.makeText(getApplicationContext(), ""+adError, Toast.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            public void onAdLoaded(Ad ad) {
+                // Native ad is loaded and ready to be displayed
+                Log.d(TAG, "Native ad is loaded and ready to be displayed!");
+                // Race condition, load() called again before last ad was displayed
+                if (nativeAd == null || nativeAd != ad) {
+                    return;
+                }
+                recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout));
+
+                // Inflate Native Ad into Container
+              //  inflateAd(nativeAd);
+                // Toast.makeText(getApplicationContext(), "ok", Toast.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            public void onAdClicked(Ad ad) {
+                // Native ad clicked
+                Log.d(TAG, "Native ad clicked!");
+            }
+
+            @Override
+            public void onLoggingImpression(Ad ad) {
+                // Native ad impression
+                Log.d(TAG, "Native ad impression logged!");
+                // Toast.makeText(getApplicationContext(), ""+ad, Toast.LENGTH_LONG).show();
+
+            }
+        });
 
     }
 
@@ -67,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
         }
     }
+
 
     @Override
     protected void onDestroy() {
@@ -90,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
         adContainer.addView(bannerAd);
         bannerAd.loadAd();
 
-        AdSettings.addTestDevice("5d512343-0388-4f0f-87d5-42299aa41891");
+        AdSettings.addTestDevice("45fc3d5b-6fd5-4d8b-9b83-05816a55205a");
         interstitialAd.loadAd();
 
     }
@@ -180,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        AdSettings.addTestDevice("5d512343-0388-4f0f-87d5-42299aa41891");
+        AdSettings.addTestDevice("45fc3d5b-6fd5-4d8b-9b83-05816a55205a");
         // Request an ad
         nativeAd.loadAd();
     }
