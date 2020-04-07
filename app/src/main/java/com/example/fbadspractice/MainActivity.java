@@ -64,6 +64,12 @@ public class MainActivity extends AppCompatActivity {
         str.add("9");
         str.add("10");
         str.add("11");
+        str.add("12");
+//        str.add("13");
+//        str.add("14");
+//        str.add("15");
+//        str.add("16");
+//        str.add("17");
         nativeAdLayout = findViewById(R.id.native_ad_container);
         AdSettings.addTestDevice("45fc3d5b-6fd5-4d8b-9b83-05816a55205a");
         nativeAd = new NativeAd(this, "YOUR_PLACEMENT_ID");

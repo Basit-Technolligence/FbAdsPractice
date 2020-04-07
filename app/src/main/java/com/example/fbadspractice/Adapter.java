@@ -30,6 +30,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     NativeAd nativeAd;
     List<View> clickableViews = new ArrayList<>();
     NativeAdLayout nativeAdLayout;
+    int adCheck3=3;
+    int adCheck5=5;
+    int v=0;
 
     public Adapter(ArrayList<String> str, Activity activity,NativeAd nativeAd,NativeAdLayout nativeAdLayout){
         this.str=str;
@@ -80,17 +83,42 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
 //            holder.textView.setText(str.get(position));
         }}
         else{
-            if(position!=0 && getItemViewType(position-1)==1){
-                holder.textView.setText(str.get(position-1));
-            }
-            holder.textView.setText(str.get(position));
+//            if(position!=0 && getItemViewType(position-1)==1){
+//                holder.textView.setText(str.get(position-1));
+//            }
+            if(str.size()>position)
+            {holder.textView.setText(str.get(position));
+            adCheck3=3;
+            adCheck5=5;}
+            else{
+                if(str.size()>5) {
+                    if(adCheck5<str.size()){
+                    holder.textView.setText(str.get(adCheck5));
+                        adCheck5 = adCheck5 + 5;
+                    }
+
+                }else{
+                    if(adCheck3<=str.size()){
+                    holder.textView.setText(str.get(adCheck3));}
+                    adCheck3=adCheck3+3;
+            }}
         }
 
     }
 
     @Override
     public int getItemCount() {
-        return str.size();
+//        int additionalContent = 0;
+//        if (str.size() > 0 && LIST_AD_DELTA > 0 && str.size() > LIST_AD_DELTA) {
+//            additionalContent = str.size() / LIST_AD_DELTA;
+//        }
+//        return str.size() + additionalContent;
+        if(str.size()>5){
+            v=Math.round(str.size()/5);
+        }else{
+            v=Math.round(str.size()/3);
+        }
+        return str.size()+v;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
