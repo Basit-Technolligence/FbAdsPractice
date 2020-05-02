@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.facebook.ads.Ad;
 import com.facebook.ads.AdError;
 import com.facebook.ads.AdIconView;
+import com.facebook.ads.AdView;
 import com.facebook.ads.MediaView;
 import com.facebook.ads.NativeAd;
 import com.facebook.ads.NativeAdLayout;
@@ -30,30 +31,33 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     NativeAd nativeAd;
     List<View> clickableViews = new ArrayList<>();
     NativeAdLayout nativeAdLayout;
+    AdView bannerAd;
     int adCheck3=3;
     int adCheck5=5;
     int v=0;
+    int showingPosition=1;
+    int ads=1,previousShowingPosition=0;
 
-    public Adapter(ArrayList<String> str, Activity activity,NativeAd nativeAd,NativeAdLayout nativeAdLayout){
+
+    public Adapter(ArrayList<String> str, Activity activity, NativeAd nativeAd, NativeAdLayout nativeAdLayout, AdView bannerAd){
         this.str=str;
         this.nativeAdLayout=nativeAdLayout;
         this.activity=activity;
         this.nativeAd=nativeAd;
+        this.bannerAd=bannerAd;
     }
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = null;
         if(viewType == 1){
-            if(nativeAd.isAdLoaded()) {
                 view = LayoutInflater.from(parent.getContext()).inflate(R.layout.native_ad_layout, parent, false);
-                return new AdditionalHolder(view);
-            }
-            else{
-                view=LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_items, parent, false);
-                return new ViewHolder(view);
-            }
-        }else {
+                return new NativeAdditionalHolder(view);
+
+        }else if(viewType == 2){
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.banner_ad_layout, parent, false);
+            return new BannerAdditionalHolder(view);
+        } else {
             view=LayoutInflater.from(parent.getContext()).inflate(R.layout.recycler_items, parent, false);
             return new ViewHolder(view);
         }
@@ -66,7 +70,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         if(getItemViewType(position)==1){
             if(nativeAd.isAdLoaded()){
             nativeAd.unregisterView();
-            AdditionalHolder new_holder = (AdditionalHolder) holder;
+            NativeAdditionalHolder new_holder = (NativeAdditionalHolder) holder;
             new_holder.nativeAdTitle.setText(nativeAd.getAdvertiserName());
             new_holder.nativeAdBody.setText(nativeAd.getAdBodyText());
             new_holder.nativeAdSocialContext.setText(nativeAd.getAdSocialContext());
@@ -80,45 +84,78 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
                     new_holder.nativeAdMedia,
                     new_holder.nativeAdIcon,
                     clickableViews);
-//            holder.textView.setText(str.get(position));
         }}
+        else if(getItemViewType(position)==2){
+            if(previousShowingPosition<showingPosition){
+                showingPosition=showingPosition+1;
+            }else{
+                showingPosition=showingPosition-1;
+            }
+            BannerAdditionalHolder banner_new_holder = (BannerAdditionalHolder) holder;
+            if(bannerAd.getParent() != null) {
+                ((ViewGroup)bannerAd.getParent()).removeView(bannerAd); // <- fix
+//                banner_new_holder.adContainer.removeAllViews();
+            }
+            banner_new_holder.adContainer.addView(bannerAd);
+        }
         else{
-//            if(position!=0 && getItemViewType(position-1)==1){
-//                holder.textView.setText(str.get(position-1));
-//            }
-            if(str.size()>position)
-            {holder.textView.setText(str.get(position));
-            adCheck3=3;
-            adCheck5=5;}
-            else{
-                if(str.size()>5) {
-                    if(adCheck5<str.size()){
-                    holder.textView.setText(str.get(adCheck5));
-                        adCheck5 = adCheck5 + 5;
-                    }
 
-                }else{
-                    if(adCheck3<=str.size()){
-                    holder.textView.setText(str.get(adCheck3));}
-                    adCheck3=adCheck3+3;
-            }}
+            if(position>5 && nativeAd.isAdLoaded()){
+                holder.textView.setText(str.get(position-showingPosition));
+                if(position-showingPosition==str.size()-1){
+                    previousShowingPosition=showingPosition;
+                    showingPosition=showingPosition-1;
+                }
+            }else{
+                previousShowingPosition=0;
+                showingPosition=1;
+                holder.textView.setText(str.get(position));
+
+            }
         }
 
     }
 
     @Override
     public int getItemCount() {
-//        int additionalContent = 0;
-//        if (str.size() > 0 && LIST_AD_DELTA > 0 && str.size() > LIST_AD_DELTA) {
-//            additionalContent = str.size() / LIST_AD_DELTA;
-//        }
-//        return str.size() + additionalContent;
-        if(str.size()>5){
-            v=Math.round(str.size()/5);
+        if(nativeAd.isAdLoaded()){
+            if(str.size()<=5){
+                v=str.size()+1;
+                return  v;
+            }else{
+                v=(str.size()-5)/8;
+                int x=str.size()+1+v;
+                return  x;
+            }
         }else{
-            v=Math.round(str.size()/3);
+                return str.size();
         }
-        return str.size()+v;
+
+    }
+    @Override
+    public int getItemViewType(int position) {
+        if (nativeAd.isAdLoaded()) {
+            if (str.size() <= 5) {
+                if (position == str.size()) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+
+        }
+            else {
+                if (position == 5) {
+                    return 1;
+                } else if(position==14 || position == 23 || position == 32 || position == 41 || position == 50){
+                    return 2;
+                }
+                else {
+                    return 0;
+                }
+            }
+        } else {
+            return 0;
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -129,24 +166,9 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         }
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        if(str.size()>5){
-            if (position!=0 && position % 5 == 0)
-                return 1;
-            else
-                return 0;
-        }else{
-            if (position!=0 && position % 3 == 0)
-                return 1;
-            else
-                return 0;
-        }
-
-    }
 
 
-    private class AdditionalHolder extends ViewHolder {
+    private class NativeAdditionalHolder extends ViewHolder {
         AdIconView nativeAdIcon ;
         TextView nativeAdTitle ;
         MediaView nativeAdMedia;
@@ -155,7 +177,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
         TextView sponsoredLabel ;
         Button nativeAdCallToAction ;
         private LinearLayout adView;
-        public AdditionalHolder(View view) {
+        public NativeAdditionalHolder(View view) {
             super(view);
             LayoutInflater inflater = LayoutInflater.from(activity);
             // Inflate the Ad view.  The layout referenced should be the one you created in the last step.
@@ -169,6 +191,17 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             nativeAdBody = view.findViewById(R.id.native_ad_body);
             sponsoredLabel = view.findViewById(R.id.native_ad_sponsored_label);
             nativeAdCallToAction = view.findViewById(R.id.native_ad_call_to_action);
+
+        }
+    }
+
+    private class BannerAdditionalHolder extends ViewHolder {
+        LinearLayout adContainer;
+
+        public BannerAdditionalHolder(View view) {
+            super(view);
+            adContainer= (LinearLayout) view.findViewById(R.id.banner_ad_container);
+
 
         }
     }

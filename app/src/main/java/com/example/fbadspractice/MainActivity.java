@@ -48,9 +48,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView=(RecyclerView) findViewById(R.id.recycler);
+//        recyclerView.setNestedScrollingEnabled(false);
+
         // Initialize the Audience Network SDK for ads
         AudienceNetworkAds.initialize(this);
-        loadAds();
+       // loadAds();
        // loadNativeAd();
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         str.add("1");
@@ -65,17 +67,38 @@ public class MainActivity extends AppCompatActivity {
         str.add("10");
         str.add("11");
         str.add("12");
-//        str.add("13");
-//        str.add("14");
-//        str.add("15");
+        str.add("13");
+        str.add("14");
+        str.add("15");
 //        str.add("16");
 //        str.add("17");
+//        str.add("18");
+//        str.add("19");
+//        str.add("20");
+//        str.add("21");
+//        str.add("22");
+//        str.add("23");
+//        str.add("24");
+//        str.add("25");
+//        str.add("26");
+//        str.add("27");
+//        str.add("28");
+//        str.add("29");
+//        str.add("30");
+//        str.add("31");
+//        str.add("32");
+//        str.add("33");
+//        str.add("34");
         nativeAdLayout = findViewById(R.id.native_ad_container);
         AdSettings.addTestDevice("45fc3d5b-6fd5-4d8b-9b83-05816a55205a");
         nativeAd = new NativeAd(this, "YOUR_PLACEMENT_ID");
         nativeAd.loadAd();
+        final String bannerId="IMG_16_9_APP_INSTALL#YOUR_PLACEMENT_ID";
+        bannerAd = new AdView(this, bannerId,AdSize.BANNER_HEIGHT_50);
 
-        recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout));
+        bannerAd.loadAd();
+
+        recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout,bannerAd));
         nativeAd.setAdListener(new NativeAdListener() {
             @Override
             public void onMediaDownloaded(Ad ad) {
@@ -100,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                 if (nativeAd == null || nativeAd != ad) {
                     return;
                 }
-                recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout));
+                recyclerView.setAdapter(new Adapter(str, MainActivity.this,nativeAd,nativeAdLayout,bannerAd));
 
                 // Inflate Native Ad into Container
               //  inflateAd(nativeAd);
